@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "api/save-preset.js": {
+      "maxDuration": 10
+    },
+    "api/load-preset.js": {
+      "maxDuration": 10
+    },
+    "api/delete-preset.js": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "name": "obs-background-generator",
+  "version": "1.0.0",
+  "description": "Modern background generator for OBS with preset management",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run scan-images && vite build",
+    "preview": "vite preview",
+    "build-standalone": "npm run scan-images && vite build --mode standalone",
+    "scan-images": "node scripts/generateImageManifest.js"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.263.1",
+    "framer-motion": "^10.16.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.0.3",
+    "vite": "^4.4.5",
+    "vite-plugin-singlefile": "^0.13.0"
+  }
+}

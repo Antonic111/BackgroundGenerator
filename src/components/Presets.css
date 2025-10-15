@@ -1,0 +1,271 @@
+/* Presets Component Styles */
+.presets-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.presets-modal {
+  background: #1e1e1e;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.presets-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #404040;
+  background: #2a2a2a;
+}
+
+.presets-header h2 {
+  margin: 0;
+  font-size: 1.5em;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #a0a0a0;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.presets-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.presets-actions {
+  margin-bottom: 24px;
+}
+
+.presets-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.preset-card {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.preset-card:hover {
+  border-color: #00bcd4;
+  background: #333333;
+}
+
+.preset-info {
+  flex: 1;
+}
+
+.preset-info h3 {
+  margin: 0 0 8px 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.preset-info p {
+  margin: 0 0 12px 0;
+  color: #b0b0b0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.preset-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 12px;
+  color: #808080;
+}
+
+.preset-meta span {
+  background: #404040;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.preset-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.preset-actions .btn {
+  padding: 8px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: #a0a0a0;
+  font-size: 16px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #808080;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.empty-state p:first-of-type {
+  font-size: 18px;
+  font-weight: 600;
+  color: #a0a0a0;
+}
+
+/* Save Preset Modal */
+.save-preset-modal {
+  min-width: 400px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  background: #0a0a0a;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #00bcd4;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: #00bcd4;
+  color: #ffffff;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #00acc1;
+}
+
+.btn-secondary {
+  background: #404040;
+  color: #ffffff;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #505050;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .presets-modal {
+    width: 95vw;
+    margin: 20px;
+  }
+  
+  .preset-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .preset-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  
+  .preset-meta {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

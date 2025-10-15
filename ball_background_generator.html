@@ -1,0 +1,2321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemon Ball Background Generator</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #1a1a1a;
+            height: 100vh; /* Fixed height instead of min-height */
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent body from scrolling */
+        }
+        
+        .header {
+            background: #2d2d2d;
+            padding: 15px 20px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #fff;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .main-container {
+            display: flex;
+            flex: 1;
+            height: calc(100vh - 60px);
+            overflow: hidden; /* Prevent main container from scrolling */
+        }
+        
+        .settings-panel {
+            width: 450px;
+            background: #2d2d2d;
+            border-right: 1px solid #404040;
+            overflow-y: auto; /* Only settings panel scrolls */
+            overflow-x: hidden;
+            padding: 15px;
+            height: 100%; /* Take full height of main container */
+            box-sizing: border-box;
+        }
+        
+        /* Custom scrollbar for settings panel */
+        .settings-panel::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .settings-panel::-webkit-scrollbar-track {
+            background: #1a1a1a;
+        }
+        
+        .settings-panel::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 4px;
+        }
+        
+        .settings-panel::-webkit-scrollbar-thumb:hover {
+            background: #777;
+        }
+        
+        .preview-panel {
+            flex: 1;
+            background: #1a1a1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            height: 100%; /* Take full height of main container */
+            padding: 60px; /* Much more padding around the preview */
+            box-sizing: border-box;
+        }
+        
+        .settings-section {
+            background: #3a3a3a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #404040;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .settings-section h3 {
+            margin: 0 0 15px 0;
+            color: #fff;
+            font-size: 1em;
+            font-weight: 600;
+            border-bottom: 1px solid #555;
+            padding-bottom: 8px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 12px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+        
+        label {
+            font-weight: 500;
+            font-size: 0.85em;
+            color: #ccc;
+        }
+        
+        .settings-section label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        input, select, button {
+            padding: 8px 12px;
+            border: 1px solid #555;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #2d2d2d;
+            color: #fff;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+        
+        input:focus, select:focus {
+            border-color: #007bff;
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #555;
+            border: none;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+            box-sizing: border-box;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        
+        input[type="file"] {
+            background: #2d2d2d;
+            color: #fff;
+            border: 1px solid #555;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.15s ease-in-out;
+            border: 1px solid #007bff;
+            border-radius: 6px;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+        }
+        
+        button:disabled {
+            background: #555;
+            border-color: #555;
+            cursor: not-allowed;
+        }
+        
+        .header button {
+            background: #404040;
+            border-color: #555;
+            font-size: 13px;
+            padding: 8px 12px;
+        }
+        
+        .header button:hover {
+            background: #555;
+        }
+        
+        .canvas-container {
+            text-align: center;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        canvas {
+            border: 1px solid #404040;
+            border-radius: 8px;
+            max-width: 100%;
+            max-height: 100%;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            display: block;
+            transition: filter 0.3s ease;
+            background: #1a1a1a; /* Ensure canvas has background */
+        }
+        
+        .status {
+            text-align: center;
+            margin: 10px 0;
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #ccc;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 24px;
+            margin-top: 30px;
+            border-left: 4px solid #007bff;
+            border: 1px solid #e9ecef;
+        }
+        
+        .info h3 {
+            margin-top: 0;
+            color: #495057;
+            font-weight: 600;
+        }
+        
+        .animation-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        
+        .speed-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .speed-control label {
+            font-size: 14px;
+            margin: 0;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        .speed-control input[type="range"] {
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎨 Animated Background Generator</h1>
+        <div class="header-actions">
+             <button onclick="generateOBSUrl()" id="generateUrlBtn" disabled>🔗 Generate OBS URL</button>
+             <button onclick="openLoadSettings()">📁 Load Settings</button>
+             <button onclick="clearImageStorage()" title="Clear saved images to free up storage space">🗑️ Clear Storage</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
+        <div class="settings-panel">
+            <!-- Image Selection -->
+            <div class="settings-section">
+                <h3>📁 Images</h3>
+                <div class="control-group">
+                    <label for="imageFolder">Select Images Folder:</label>
+                    <input type="file" id="imageFolder" webkitdirectory directory multiple accept="image/*" style="display: none;">
+                    <button onclick="openImageLoader()" class="btn btn-primary" style="width: 100%; margin-top: 8px;">📁 Choose Images Folder</button>
+                </div>
+                <div class="control-group">
+                    <small id="storageInfo" style="color: #888; font-size: 0.8em;">Storage usage will be shown here</small>
+                </div>
+            </div>
+            
+            <!-- Layout Settings -->
+            <div class="settings-section">
+                <h3>📐 Layout</h3>
+                <div class="control-group">
+                    <label for="lineCount">Lines: <span id="lineCountValue">5</span></label>
+                    <input type="range" id="lineCount" min="2" max="20" value="5">
+                </div>
+                <div class="control-group">
+                    <label for="lineSpacing">Line Spacing: <span id="lineSpacingValue">150px</span></label>
+                    <input type="range" id="lineSpacing" min="50" max="300" value="150">
+                </div>
+                <div class="control-group">
+                    <label for="imageSpacing">Image Spacing: <span id="imageSpacingValue">120px</span></label>
+                    <input type="range" id="imageSpacing" min="30" max="250" value="120">
+                </div>
+            </div>
+            
+            <!-- Image Settings -->
+            <div class="settings-section">
+                <h3>🖼️ Images</h3>
+                <div class="control-group">
+                    <label for="imageCount">Count: <span id="imageCountValue">25</span></label>
+                    <input type="range" id="imageCount" min="5" max="200" value="25">
+                </div>
+                <div class="control-group">
+                    <label for="imageSize">Size: <span id="imageSizeValue">60px</span></label>
+                    <input type="range" id="imageSize" min="20" max="200" value="60">
+                </div>
+                <div class="control-group">
+                    <label for="imageRotation">Image Rotation: <span id="imageRotationValue">0°</span></label>
+                    <input type="range" id="imageRotation" min="0" max="360" step="1" value="0">
+                </div>
+                <div class="control-group">
+                    <label for="imageTintColor">Image Tint Color:</label>
+                    <input type="color" id="imageTintColor" value="#ffffff">
+                </div>
+                <div class="control-group">
+                    <label for="imageTintIntensity">Tint Intensity: <span id="tintIntensityValue">0%</span></label>
+                    <input type="range" id="imageTintIntensity" min="0" max="100" step="1" value="0">
+                </div>
+                <div class="control-group">
+                    <label for="uniformSize" style="display: flex; align-items: center; gap: 8px;">
+                        <input type="checkbox" id="uniformSize" style="margin: 0;">
+                        Uniform Size
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Animation Settings -->
+            <div class="settings-section">
+                <h3>🎬 Animation</h3>
+                <div class="control-group">
+                    <label for="scrollSpeed">Scroll Speed: <span id="scrollSpeedValue">0.15x</span></label>
+                    <input type="range" id="scrollSpeed" min="0.01" max="2" step="0.01" value="0.15">
+                </div>
+                 <div class="control-group">
+                     <label for="animationSpeed">Animation Speed: <span id="speedValue">1.0x</span></label>
+                     <input type="range" id="animationSpeed" min="0" max="2" step="0.01" value="1">
+                 </div>
+                 <div class="control-group">
+                     <label for="canvasRotation">Canvas Rotation: <span id="rotationValue">0°</span></label>
+                     <input type="range" id="canvasRotation" min="0" max="360" step="1" value="0">
+                 </div>
+             </div>
+            
+            <!-- Appearance -->
+            <div class="settings-section">
+                <h3>🎨 Appearance</h3>
+                <div class="control-group">
+                    <label for="backgroundColor">Background Color:</label>
+                    <input type="color" id="backgroundColor" value="#0a0a0a">
+                </div>
+                <div class="control-group">
+                    <label for="gradientType">Gradient Type:</label>
+                    <select id="gradientType">
+                        <option value="none">None (Solid Color)</option>
+                        <option value="linear">Linear Gradient</option>
+                        <option value="circular">Circular Gradient</option>
+                        <option value="radial">Radial Gradient</option>
+                    </select>
+                </div>
+                <div class="control-group" id="gradientDirectionGroup" style="display: none;">
+                    <label for="gradientDirection">Gradient Direction:</label>
+                    <select id="gradientDirection">
+                        <option value="top">Top to Bottom</option>
+                        <option value="bottom">Bottom to Top</option>
+                        <option value="left">Left to Right</option>
+                        <option value="right">Right to Left</option>
+                        <option value="top-left">Top-Left to Bottom-Right</option>
+                        <option value="top-right">Top-Right to Bottom-Left</option>
+                        <option value="bottom-left">Bottom-Left to Top-Right</option>
+                        <option value="bottom-right">Bottom-Right to Top-Left</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="gradientColor2">Gradient End Color:</label>
+                    <input type="color" id="gradientColor2" value="#000000">
+                </div>
+                <div class="control-group">
+                    <label for="gradientIntensity">Gradient Intensity: <span id="gradientIntensityValue">50%</span></label>
+                    <input type="range" id="gradientIntensity" min="0" max="100" step="1" value="50">
+                </div>
+                <div class="control-group">
+                    <label for="blurAmount">Blur: <span id="blurValue">0px</span></label>
+                    <input type="range" id="blurAmount" min="0" max="20" step="0.5" value="0">
+                    <small style="color: #888; font-size: 0.8em;">✨ Hardware-accelerated CSS blur for smooth performance</small>
+                </div>
+            </div>
+            
+        </div>
+        
+        <div class="preview-panel">
+            <div class="canvas-container">
+                <canvas id="backgroundCanvas" width="2560" height="1440" style="display: none;"></canvas>
+            </div>
+        </div>
+    </div>
+        
+        <div class="loading" id="loading" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2d2d2d; padding: 20px; border-radius: 8px; border: 1px solid #404040;">
+            <div class="spinner"></div>
+            <p style="margin: 10px 0 0 0; color: #ccc;">Generating your animated background...</p>
+        </div>
+        
+        <div class="status" id="status" style="position: fixed; bottom: 20px; left: 20px; background: #2d2d2d; padding: 10px 15px; border-radius: 6px; border: 1px solid #404040; font-size: 0.85em;">Loading preview with default settings...</div>
+        
+        <div id="urlOutput" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2d2d2d; padding: 20px; border-radius: 8px; border: 1px solid #404040; max-width: 500px; width: 90%;">
+            <h3 style="margin-top: 0; color: #fff;">🔗 OBS Browser Source URL:</h3>
+            <input type="text" id="obsUrl" readonly style="width: 100%; padding: 10px; border: 1px solid #555; border-radius: 5px; background: #1a1a1a; color: white; font-family: monospace; font-size: 12px; word-break: break-all; margin-bottom: 15px;">
+            <div style="margin-top: 10px;">
+                <button onclick="copyToClipboard()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">📋 Copy URL</button>
+                <button onclick="openInNewTab()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">🔗 Open Preview</button>
+                <button onclick="closeUrlOutput()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-left: 10px;">✕ Close</button>
+            </div>
+            <p style="margin: 10px 0 0 0; font-size: 12px; color: #ccc;">
+                <strong>How to use:</strong> Copy this URL and paste it into OBS as a Browser Source. Set the width to 2560 and height to 1440 for best results.
+            </p>
+        </div>
+        
+        </div>
+        
+        <!-- Image Loader Modal -->
+        <div id="imageLoaderModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2d2d2d; padding: 20px; border-radius: 8px; border: 1px solid #404040; max-width: 500px; width: 90%;">
+            <h3 style="margin-top: 0; color: #fff;">📁 Load Images</h3>
+            <p style="color: #ccc; margin-bottom: 20px;">Select a folder containing your images:</p>
+            <input type="file" id="imageFolder" webkitdirectory directory multiple accept="image/*" style="display: none;">
+            <button onclick="document.getElementById('imageFolder').click()" style="background: #007bff; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 15px; font-size: 16px;">📁 Choose Images Folder</button>
+            <div id="loadStatus" style="margin-top: 10px; color: #888; font-size: 0.9em; text-align: center;"></div>
+            <div id="loadActions" style="margin-top: 15px; text-align: right; display: none;">
+                <button onclick="closeImageLoader()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">✅ Done</button>
+            </div>
+            <div style="margin-top: 15px; text-align: right;">
+                <button onclick="closeImageLoader()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">✕ Close</button>
+            </div>
+        </div>
+        
+        <!-- Load Settings Modal -->
+        <div id="loadSettingsModal" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #2d2d2d; padding: 20px; border-radius: 8px; border: 1px solid #404040; max-width: 500px; width: 90%;">
+            <h3 style="margin-top: 0; color: #fff;">📁 Load Settings</h3>
+            <p style="color: #ccc; margin-bottom: 20px;">Paste an OBS URL or choose a settings file:</p>
+            <textarea id="settingsInput" placeholder="Paste OBS URL here..." style="width: 100%; height: 100px; padding: 10px; border: 1px solid #555; border-radius: 5px; background: #1a1a1a; color: white; font-family: monospace; font-size: 12px; resize: vertical; margin-bottom: 15px;"></textarea>
+            <div style="margin-bottom: 15px;">
+                <input type="file" id="settingsFileInput" accept=".json" style="display: none;">
+                <button onclick="document.getElementById('settingsFileInput').click()" style="background: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer; margin-right: 10px;">📁 Choose File</button>
+                <button onclick="loadSettingsFromModalUrl()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">🔗 Load from URL</button>
+            </div>
+            <div style="margin-top: 15px; text-align: right;">
+                <button onclick="closeLoadSettings()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 5px; cursor: pointer;">✕ Close</button>
+            </div>
+        </div>
+        
+        <script>
+        let imageAssets = [];
+        let canvas, ctx;
+        let animatedImages = [];
+        let animationId = null;
+        let isAnimating = false;
+        let animationSpeed = 1.0;
+        let scrollSpeed = 0.15;
+         let blurAmount = 0;
+         let uniformSize = false;
+         let canvasRotation = 0;
+         let imageRotation = 0;
+         let imageTintColor = '#ffffff';
+         let imageTintIntensity = 0;
+         let tintedImageCache = new Map(); // Cache for tinted images
+         let lastTintSettings = { color: '', intensity: 0 }; // Track tint changes
+         let gradientType = 'none';
+         let gradientDirection = 'top';
+         let gradientIntensity = 50;
+         let gradientColor2 = '#000000';
+         let scrollingLines = [];
+         let isInitializing = true;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            canvas = document.getElementById('backgroundCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // Load saved images from localStorage first
+            loadImagesFromStorage();
+            
+            // Load saved settings from localStorage first
+            loadSettings();
+            
+            // Update storage info
+            updateStorageInfo();
+            
+            // Initialize global variables from current slider values
+            animationSpeed = parseFloat(document.getElementById('animationSpeed').value);
+            scrollSpeed = parseFloat(document.getElementById('scrollSpeed').value);
+            blurAmount = parseFloat(document.getElementById('blurAmount').value);
+            uniformSize = document.getElementById('uniformSize').checked;
+            canvasRotation = parseFloat(document.getElementById('canvasRotation').value);
+            imageRotation = parseFloat(document.getElementById('imageRotation').value);
+            imageTintColor = document.getElementById('imageTintColor').value;
+            imageTintIntensity = parseFloat(document.getElementById('imageTintIntensity').value);
+            gradientType = document.getElementById('gradientType').value;
+            gradientDirection = document.getElementById('gradientDirection').value;
+            gradientIntensity = parseFloat(document.getElementById('gradientIntensity').value);
+            gradientColor2 = document.getElementById('gradientColor2').value;
+            
+            // Then load settings from URL parameters (this will override localStorage if URL params exist)
+            // Only call this after canvas is initialized
+            setTimeout(() => {
+                loadSettingsFromUrl();
+            }, 100);
+            
+            // Auto-start preview if no URL parameters
+            if (!window.location.search) {
+                setTimeout(() => {
+                    console.log('Auto-start check:', {
+                        imageAssetsLength: imageAssets.length,
+                        hasLoadedImages: window.hasLoadedImages,
+                        willCreateDefaults: imageAssets.length === 0 && !window.hasLoadedImages
+                    });
+                    
+                    // Only create default images if no images are loaded yet and we haven't loaded saved images
+                    if (imageAssets.length === 0 && !window.hasLoadedImages) {
+                        updateStatus('🎨 Auto-starting preview with default settings...', 'info');
+                        createDefaultImages();
+                    }
+                    
+                    // Clear any loading state and proceed
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    generateBackground();
+                    // Auto-start animation
+                    setTimeout(() => {
+                        isAnimating = true;
+                        animate();
+                    }, 500);
+                }, 2000); // Increased delay to give more time for saved images to load
+            }
+            
+            // Mark initialization as complete
+            setTimeout(() => {
+                isInitializing = false;
+            }, 1500);
+            
+            // Update range value displays and trigger live updates
+            document.getElementById('imageCount').addEventListener('input', function() {
+                document.getElementById('imageCountValue').textContent = this.value;
+                liveUpdate();
+            });
+            
+            document.getElementById('imageSize').addEventListener('input', function() {
+                document.getElementById('imageSizeValue').textContent = this.value + 'px';
+                liveUpdate();
+            });
+            
+            document.getElementById('lineSpacing').addEventListener('input', function() {
+                document.getElementById('lineSpacingValue').textContent = this.value + 'px';
+                liveUpdate();
+            });
+            
+            document.getElementById('imageSpacing').addEventListener('input', function() {
+                document.getElementById('imageSpacingValue').textContent = this.value + 'px';
+                liveUpdate();
+            });
+            
+            document.getElementById('scrollSpeed').addEventListener('input', function() {
+                document.getElementById('scrollSpeedValue').textContent = parseFloat(this.value).toFixed(2) + 'x';
+                scrollSpeed = parseFloat(this.value);
+                // Trigger live update to save the setting
+                liveUpdate();
+            });
+            
+            document.getElementById('lineCount').addEventListener('input', function() {
+                document.getElementById('lineCountValue').textContent = this.value;
+                liveUpdate();
+            });
+            
+            document.getElementById('animationSpeed').addEventListener('input', function() {
+                animationSpeed = parseFloat(this.value);
+                document.getElementById('speedValue').textContent = animationSpeed.toFixed(2) + 'x';
+                console.log('Animation speed changed to:', animationSpeed);
+                // Trigger live update to save the setting
+                liveUpdate();
+            });
+            
+            document.getElementById('blurAmount').addEventListener('input', function() {
+                blurAmount = parseFloat(this.value);
+                document.getElementById('blurValue').textContent = blurAmount.toFixed(1) + 'px';
+                
+                // Apply CSS blur to canvas for better performance
+                const canvas = document.getElementById('backgroundCanvas');
+                if (canvas) {
+                    if (blurAmount > 0) {
+                        canvas.style.filter = `blur(${blurAmount}px)`;
+                        console.log('Blur applied:', canvas.style.filter);
+                    } else {
+                        canvas.style.filter = 'none';
+                        console.log('Blur removed');
+                    }
+                }
+                
+                // Trigger live update to save the setting
+                liveUpdate();
+            });
+            
+            document.getElementById('backgroundColor').addEventListener('input', function() {
+                liveUpdate();
+            });
+            
+            document.getElementById('gradientType').addEventListener('change', function() {
+                gradientType = this.value;
+                const directionGroup = document.getElementById('gradientDirectionGroup');
+                if (this.value === 'linear') {
+                    directionGroup.style.display = 'block';
+                } else {
+                    directionGroup.style.display = 'none';
+                }
+                liveUpdate();
+            });
+            
+            document.getElementById('gradientDirection').addEventListener('change', function() {
+                gradientDirection = this.value;
+                liveUpdate();
+            });
+            
+            document.getElementById('gradientIntensity').addEventListener('input', function() {
+                gradientIntensity = parseFloat(this.value);
+                document.getElementById('gradientIntensityValue').textContent = gradientIntensity + '%';
+                liveUpdate();
+            });
+            
+            document.getElementById('gradientColor2').addEventListener('input', function() {
+                gradientColor2 = this.value;
+                liveUpdate();
+            });
+            
+             document.getElementById('uniformSize').addEventListener('change', function() {
+                 uniformSize = this.checked;
+                 liveUpdate();
+             });
+             
+             document.getElementById('canvasRotation').addEventListener('input', function() {
+                 canvasRotation = parseFloat(this.value);
+                 updateDisplayValues();
+                 liveUpdate();
+             });
+             
+             document.getElementById('imageRotation').addEventListener('input', function() {
+                 imageRotation = parseFloat(this.value);
+                 document.getElementById('imageRotationValue').textContent = imageRotation + '°';
+                 liveUpdate();
+             });
+             
+             document.getElementById('imageTintColor').addEventListener('input', function() {
+                 imageTintColor = this.value;
+                 
+                 // Clear tint cache when color changes
+                 if (lastTintSettings.color !== imageTintColor || lastTintSettings.intensity !== imageTintIntensity) {
+                     tintedImageCache.clear();
+                     lastTintSettings = { color: imageTintColor, intensity: imageTintIntensity };
+                 }
+                 
+                 liveUpdate();
+             });
+             
+             document.getElementById('imageTintIntensity').addEventListener('input', function() {
+                 imageTintIntensity = parseFloat(this.value);
+                 document.getElementById('tintIntensityValue').textContent = imageTintIntensity + '%';
+                 
+                 // Clear tint cache when settings change
+                 if (lastTintSettings.color !== imageTintColor || lastTintSettings.intensity !== imageTintIntensity) {
+                     tintedImageCache.clear();
+                     lastTintSettings = { color: imageTintColor, intensity: imageTintIntensity };
+                 }
+                 
+                 liveUpdate();
+             });
+            
+            // Handle file selection
+            document.getElementById('imageFolder').addEventListener('change', function(e) {
+                loadImages(e.target.files);
+                // Auto-generate after loading images
+                setTimeout(() => {
+                    if (imageAssets.length > 0) {
+                        liveUpdate();
+                    }
+                }, 500);
+            });
+        });
+        
+        function loadImages(files) {
+            console.log(`loadImages called with ${files.length} files`);
+            imageAssets = [];
+            const imageFiles = Array.from(files).filter(file => file.type.startsWith('image/'));
+            console.log(`Found ${imageFiles.length} image files`);
+            
+            // Update modal status
+            const loadStatus = document.getElementById('loadStatus');
+            if (loadStatus) {
+                loadStatus.textContent = `Found ${imageFiles.length} image files. Loading...`;
+            }
+            
+            if (imageFiles.length === 0) {
+                if (loadStatus) {
+                    loadStatus.textContent = '❌ No image files found in the selected folder.';
+                }
+                updateStatus('No image files found in the selected folder.', 'error');
+                return;
+            }
+            
+            updateStatus(`Loading ${imageFiles.length} images...`, 'loading');
+            
+            let loadedCount = 0;
+            const imageDataArray = [];
+            
+            imageFiles.forEach((file, index) => {
+                const img = new Image();
+                img.onload = function() {
+                    console.log(`Successfully loaded image ${loadedCount + 1}/${imageFiles.length}: ${file.name}`);
+                    
+                    // Convert image to compressed format for storage
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Resize image to max 64x64 for storage (much smaller)
+                    const maxSize = 64;
+                    const scale = Math.min(maxSize / img.width, maxSize / img.height);
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+                    
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Use WebP format with compression (much smaller than PNG)
+                    const base64 = canvas.toDataURL('image/webp', 0.7);
+                    
+                    imageAssets.push({
+                        image: img,
+                        name: file.name
+                    });
+                    
+                    imageDataArray.push({
+                        name: file.name,
+                        data: base64
+                    });
+                    
+                    loadedCount++;
+                    
+                    if (loadedCount === imageFiles.length) {
+                        // Save only a small sample of images for quick loading
+                        saveImageSample(imageDataArray);
+                        
+                        // Always generate background regardless of storage status
+                        console.log(`Generating background with ${imageAssets.length} loaded images`);
+                        setTimeout(() => {
+                            liveUpdate();
+                        }, 200);
+                    }
+                };
+                img.onerror = function() {
+                    console.error('Failed to load:', file.name);
+                    loadedCount++;
+                    if (loadedCount === imageFiles.length) {
+                        // Try to save images to localStorage with size checking (optional)
+                        try {
+                            const dataToSave = JSON.stringify(imageDataArray);
+                            const dataSize = new Blob([dataToSave]).size;
+                            const maxSize = 4 * 1024 * 1024; // 4MB limit
+                            
+                            if (dataSize > maxSize) {
+                                console.warn('Image data too large for localStorage, skipping save');
+                                updateStatus(`⚠️ Loaded ${imageAssets.length} of ${imageFiles.length} images. (Images loaded but not saved to storage)`, 'warning');
+                                const loadStatus = document.getElementById('loadStatus');
+                                if (loadStatus) {
+                                    loadStatus.textContent = `✅ Loaded ${imageAssets.length} images! (Not saved to storage)`;
+                                }
+                                const loadActions = document.getElementById('loadActions');
+                                if (loadActions) {
+                                    loadActions.style.display = 'block';
+                                }
+                            } else {
+                                localStorage.setItem('backgroundGeneratorImages', dataToSave);
+                                updateStatus(`⚠️ Loaded ${imageAssets.length} of ${imageFiles.length} images. Auto-generating...`, 'warning');
+                                const loadStatus = document.getElementById('loadStatus');
+                                if (loadStatus) {
+                                    loadStatus.textContent = `✅ Loaded ${imageAssets.length} images!`;
+                                }
+                                const loadActions = document.getElementById('loadActions');
+                                if (loadActions) {
+                                    loadActions.style.display = 'block';
+                                }
+                            }
+                            updateStorageInfo();
+                        } catch (error) {
+                            console.warn('Failed to save images to localStorage:', error.message);
+                            updateStatus(`⚠️ Loaded ${imageAssets.length} of ${imageFiles.length} images. (Images loaded but not saved to storage)`, 'warning');
+                            const loadStatus = document.getElementById('loadStatus');
+                            if (loadStatus) {
+                                loadStatus.textContent = `✅ Loaded ${imageAssets.length} images! (Not saved to storage)`;
+                            }
+                            const loadActions = document.getElementById('loadActions');
+                            if (loadActions) {
+                                loadActions.style.display = 'block';
+                            }
+                        }
+                        
+                        // Always generate background even with partial load
+                        console.log(`Generating background with ${imageAssets.length} loaded images (some failed to load)`);
+                        setTimeout(() => {
+                            liveUpdate();
+                        }, 200);
+                    }
+                };
+                img.src = URL.createObjectURL(file);
+            });
+        }
+        
+        // For URL mode, we need to create some default images
+        function createDefaultImages() {
+            
+            // Don't create defaults if we're loading saved images
+            if (window.hasLoadedImages) {
+                return;
+            }
+            
+            imageAssets = [];
+            
+            // Create simple colored shapes as default images
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
+            const shapes = ['circle', 'square', 'triangle', 'diamond'];
+            
+            colors.forEach((color, index) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 64;
+                canvas.height = 64;
+                const ctx = canvas.getContext('2d');
+                
+                const shape = shapes[index % shapes.length];
+                
+                if (shape === 'circle') {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(32, 32, 28, 0, Math.PI * 2);
+                    ctx.fill();
+                } else if (shape === 'square') {
+                    ctx.fillStyle = color;
+                    ctx.fillRect(4, 4, 56, 56);
+                } else if (shape === 'triangle') {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(32, 4);
+                    ctx.lineTo(4, 60);
+                    ctx.lineTo(60, 60);
+                    ctx.closePath();
+                    ctx.fill();
+                } else if (shape === 'diamond') {
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.moveTo(32, 4);
+                    ctx.lineTo(60, 32);
+                    ctx.lineTo(32, 60);
+                    ctx.lineTo(4, 32);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                // Add a highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                ctx.beginPath();
+                ctx.arc(24, 24, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                const img = new Image();
+                img.src = canvas.toDataURL();
+                imageAssets.push({
+                    image: img,
+                    name: `shape_${index}`
+                });
+            });
+            
+            updateStatus('✅ Using default shapes for URL mode', 'success');
+        }
+        
+        function generateBackground() {
+            console.log(`generateBackground called with ${imageAssets.length} total images`);
+            
+            if (imageAssets.length === 0) {
+                // If no images loaded, create default ones
+                console.log('No images loaded, creating default images');
+                createDefaultImages();
+            }
+            
+            // Safety check - ensure all imageAssets have valid image property
+            const validImageAssets = imageAssets.filter(asset => asset && asset.image);
+            console.log(`Valid images: ${validImageAssets.length} out of ${imageAssets.length} total`);
+            
+            if (validImageAssets.length === 0) {
+                console.log('No valid images available, waiting...');
+                updateStatus('No valid images available, waiting...', 'warning');
+                return;
+            }
+            
+            showLoading(true);
+            updateStatus('Generating background...', 'loading');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Set background color and gradient
+            const bgColor = document.getElementById('backgroundColor').value;
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Apply gradient effect based on settings
+            if (gradientType !== 'none') {
+                let gradient;
+                const intensity = gradientIntensity / 100;
+                // Blend the second color with the background color based on intensity
+                const endColor = blendColors(bgColor, gradientColor2, intensity);
+                
+                if (gradientType === 'linear') {
+                    // Create linear gradient based on direction
+                    const coords = getLinearGradientCoords(gradientDirection, canvas.width, canvas.height);
+                    gradient = ctx.createLinearGradient(coords.x1, coords.y1, coords.x2, coords.y2);
+                    gradient.addColorStop(0, bgColor);
+                    gradient.addColorStop(1, endColor);
+                } else if (gradientType === 'circular') {
+                    // Create circular gradient (dark edges, light center)
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const radius = Math.max(canvas.width, canvas.height) / 2;
+                    gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                    gradient.addColorStop(0, bgColor);
+                    gradient.addColorStop(1, endColor);
+                } else if (gradientType === 'radial') {
+                    // Create radial gradient
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const radius = Math.max(canvas.width, canvas.height) / 2;
+                    gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                    gradient.addColorStop(0, endColor);
+                    gradient.addColorStop(1, bgColor);
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // Generate scrolling lines
+            const maxSize = parseInt(document.getElementById('imageSize').value);
+            const minSize = Math.max(30, maxSize * 0.5);
+            const lineSpacing = parseInt(document.getElementById('lineSpacing').value);
+            const imageSpacing = parseInt(document.getElementById('imageSpacing').value);
+            const lineCount = parseInt(document.getElementById('lineCount').value);
+            
+            scrollingLines = [];
+            animatedImages = [];
+            
+            // Create scrolling lines with alternating directions, starting from center
+            const centerY = canvas.height / 2;
+            for (let lineIndex = 0; lineIndex < lineCount; lineIndex++) {
+                // Calculate Y position: simple sequential spacing from center
+                const startY = centerY - ((lineCount - 1) * lineSpacing) / 2;
+                const y = startY + (lineIndex * lineSpacing);
+                
+                // Direction should alternate: even lines left, odd lines right (true alternating)
+                const direction = lineIndex % 2 === 0 ? -1 : 1; // Alternating: even lines left (-1), odd lines right (1)
+                
+                const speed = (Math.random() * 0.5 + 0.3) * direction; // Random speed between 0.3-0.8
+                
+                const line = {
+                    y: y,
+                    direction: direction,
+                    speed: speed,
+                    balls: [],
+                    lineIndex: lineIndex
+                };
+                
+                // Create images for this line that will scroll continuously
+                const imagesPerLine = Math.ceil(canvas.width / imageSpacing) + 3; // Extra images for seamless scrolling
+                
+                for (let i = 0; i < imagesPerLine; i++) {
+                    const imageData = validImageAssets[Math.floor(Math.random() * validImageAssets.length)];
+                    const size = uniformSize ? parseInt(document.getElementById('imageSize').value) : Math.random() * (maxSize - minSize) + minSize;
+                    const alpha = Math.random() * 0.4 + 0.6;
+                    
+                    // Start images distributed across the screen with proper spacing
+                    const startX = (i * imageSpacing) + (Math.random() * 20 - 10); // Reduced randomness for better spacing
+                    
+                    const image = {
+                        image: imageData.image,
+                        name: imageData.name,
+                        x: startX,
+                        y: y,
+                        size: size,
+                        alpha: alpha,
+                        rotation: Math.random() * 360,
+                        rotationSpeed: (Math.random() - 0.5) * 3,
+                        originalY: y,
+                        time: Math.random() * Math.PI * 2,
+                        lineIndex: lineIndex,
+                        imageIndex: i
+                    };
+                    
+                    line.images = line.images || [];
+                    line.images.push(image);
+                    animatedImages.push(image);
+                }
+                
+                scrollingLines.push(line);
+            }
+            
+            // No sparkle effects - clean background
+            
+            // Show canvas and enable controls
+            canvas.style.display = 'block';
+            document.getElementById('generateUrlBtn').disabled = false;
+            showLoading(false);
+            updateStatus(`✨ Generated ${lineCount} scrolling lines with ${animatedImages.length} images!`, 'success');
+            
+            // Auto-start animation if not already running
+            if (!isAnimating) {
+                setTimeout(() => {
+                    isAnimating = true;
+                    animate();
+                }, 200);
+            }
+        }
+        
+        function drawImage(image, x, y, size, rotation, alpha) {
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.translate(x + size/2, y + size/2);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.drawImage(image, -size/2, -size/2, size, size);
+            ctx.restore();
+        }
+        
+        function getTintedImage(originalImage, size) {
+            // Check if tint settings changed
+            const tintKey = `${imageTintColor}_${imageTintIntensity}`;
+            const cacheKey = `${originalImage.src}_${size}_${tintKey}`;
+            
+            // Return cached version if available
+            if (tintedImageCache.has(cacheKey)) {
+                return tintedImageCache.get(cacheKey);
+            }
+            
+            // Create new tinted image
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = size;
+            tempCanvas.height = size;
+            
+            // Draw the original image
+            tempCtx.drawImage(originalImage, 0, 0, size, size);
+            
+            if (imageTintIntensity > 0) {
+                if (imageTintIntensity >= 100) {
+                    // At 100%, create a solid color silhouette
+                    tempCtx.globalCompositeOperation = 'source-in';
+                    tempCtx.fillStyle = imageTintColor;
+                    tempCtx.fillRect(0, 0, size, size);
+                } else {
+                    // For partial tinting, blend the original with the tint color
+                    tempCtx.globalCompositeOperation = 'source-atop';
+                    tempCtx.fillStyle = imageTintColor;
+                    tempCtx.globalAlpha = imageTintIntensity / 100;
+                    tempCtx.fillRect(0, 0, size, size);
+                }
+            }
+            
+            // Cache the result
+            const tintedImage = new Image();
+            tintedImage.src = tempCanvas.toDataURL();
+            tintedImageCache.set(cacheKey, tintedImage);
+            
+            return tintedImage;
+        }
+        
+        function drawAnimatedImage(imageObj) {
+            ctx.save();
+            ctx.globalAlpha = imageObj.alpha;
+            
+            // No blur filter on canvas - we'll use CSS blur on individual elements for better performance
+            ctx.translate(imageObj.x + imageObj.size/2, imageObj.y + imageObj.size/2);
+            // Apply both the animated rotation and the static image rotation
+            ctx.rotate((imageObj.rotation + imageRotation) * Math.PI / 180);
+            
+            // Get the appropriate image (tinted or original)
+            const imageToDraw = imageTintIntensity > 0 ? 
+                getTintedImage(imageObj.image, imageObj.size) : 
+                imageObj.image;
+            
+            // Draw the image
+            ctx.drawImage(imageToDraw, -imageObj.size/2, -imageObj.size/2, imageObj.size, imageObj.size);
+            ctx.restore();
+        }
+        
+        function updateImageAnimation(imageObj) {
+            // Update rotation only if animation speed is greater than 0
+            if (animationSpeed > 0) {
+                imageObj.rotation += imageObj.rotationSpeed * animationSpeed;
+                if (imageObj.rotation >= 360) imageObj.rotation -= 360;
+                if (imageObj.rotation < 0) imageObj.rotation += 360;
+            } else {
+                // Keep images straight up when animation speed is 0
+                imageObj.rotation = 0;
+            }
+            
+            // Get the line this image belongs to
+            const line = scrollingLines[imageObj.lineIndex];
+            if (!line) return;
+            
+            // Update horizontal scrolling position (scroll speed only affects scrolling)
+            imageObj.x += line.speed * scrollSpeed;
+            
+            // Add very subtle vertical floating motion for stream background
+            imageObj.time += 0.01 * animationSpeed;
+            imageObj.y = imageObj.originalY + Math.sin(imageObj.time) * 2;
+            
+            // Reset image position when it goes off-screen for seamless scrolling
+            const imageSpacing = parseInt(document.getElementById('imageSpacing').value);
+            if (line.direction > 0 && imageObj.x > canvas.width + imageObj.size) {
+                // Find the leftmost image in this line to reset to
+                const leftmostX = Math.min(...scrollingLines[imageObj.lineIndex].images.map(img => img.x));
+                imageObj.x = leftmostX - imageSpacing;
+                // Randomize the image when it resets
+                const imageData = imageAssets[Math.floor(Math.random() * imageAssets.length)];
+                imageObj.image = imageData.image;
+                imageObj.name = imageData.name;
+            } else if (line.direction < 0 && imageObj.x < -imageObj.size) {
+                // Find the rightmost image in this line to reset to
+                const rightmostX = Math.max(...scrollingLines[imageObj.lineIndex].images.map(img => img.x));
+                imageObj.x = rightmostX + imageSpacing;
+                // Randomize the image when it resets
+                const imageData = imageAssets[Math.floor(Math.random() * imageAssets.length)];
+                imageObj.image = imageData.image;
+                imageObj.name = imageData.name;
+            }
+        }
+        
+        function animate() {
+            if (!isAnimating) return;
+            
+            // Debug: Log animation speed occasionally
+            if (Math.random() < 0.001) { // Very rarely log this
+                console.log('Current animation speed:', animationSpeed);
+            }
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background first (no rotation)
+            const bgColor = document.getElementById('backgroundColor').value;
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Apply gradient effect based on settings
+            if (gradientType !== 'none') {
+                let gradient;
+                const intensity = gradientIntensity / 100;
+                // Blend the second color with the background color based on intensity
+                const endColor = blendColors(bgColor, gradientColor2, intensity);
+                
+                if (gradientType === 'linear') {
+                    // Create linear gradient based on direction
+                    const coords = getLinearGradientCoords(gradientDirection, canvas.width, canvas.height);
+                    gradient = ctx.createLinearGradient(coords.x1, coords.y1, coords.x2, coords.y2);
+                    gradient.addColorStop(0, bgColor);
+                    gradient.addColorStop(1, endColor);
+                } else if (gradientType === 'circular') {
+                    // Create circular gradient (dark edges, light center)
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const radius = Math.max(canvas.width, canvas.height) / 2;
+                    gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                    gradient.addColorStop(0, bgColor);
+                    gradient.addColorStop(1, endColor);
+                } else if (gradientType === 'radial') {
+                    // Create radial gradient
+                    const centerX = canvas.width / 2;
+                    const centerY = canvas.height / 2;
+                    const radius = Math.max(canvas.width, canvas.height) / 2;
+                    gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+                    gradient.addColorStop(0, endColor);
+                    gradient.addColorStop(1, bgColor);
+                }
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            // Save the canvas state for image rotation
+            ctx.save();
+            
+            // Apply rotation around the center of the canvas (only for images)
+            if (canvasRotation !== 0) {
+                ctx.translate(canvas.width / 2, canvas.height / 2);
+                ctx.rotate((canvasRotation * Math.PI) / 180);
+                ctx.translate(-canvas.width / 2, -canvas.height / 2);
+            }
+            
+            // Update and draw all images
+            for (const imageObj of animatedImages) {
+                updateImageAnimation(imageObj);
+                drawAnimatedImage(imageObj);
+            }
+            
+            // Restore the canvas state
+            ctx.restore();
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function liveUpdate() {
+            // Debounce rapid changes
+            clearTimeout(liveUpdate.timeout);
+            liveUpdate.timeout = setTimeout(() => {
+                updateStatus('🔄 Updating background...', 'info');
+                generateBackground();
+                // Auto-save settings
+                saveSettings();
+            }, 300);
+        }
+
+         function updateDisplayValues() {
+             document.getElementById('lineCountValue').textContent = document.getElementById('lineCount').value;
+             document.getElementById('lineSpacingValue').textContent = document.getElementById('lineSpacing').value + 'px';
+             document.getElementById('imageSpacingValue').textContent = document.getElementById('imageSpacing').value + 'px';
+             document.getElementById('imageCountValue').textContent = document.getElementById('imageCount').value;
+             document.getElementById('imageSizeValue').textContent = document.getElementById('imageSize').value + 'px';
+             document.getElementById('scrollSpeedValue').textContent = parseFloat(document.getElementById('scrollSpeed').value).toFixed(2) + 'x';
+             document.getElementById('speedValue').textContent = parseFloat(document.getElementById('animationSpeed').value).toFixed(2) + 'x';
+             document.getElementById('blurValue').textContent = parseFloat(document.getElementById('blurAmount').value).toFixed(1) + 'px';
+             document.getElementById('rotationValue').textContent = parseFloat(document.getElementById('canvasRotation').value) + '°';
+             document.getElementById('imageRotationValue').textContent = parseFloat(document.getElementById('imageRotation').value) + '°';
+             document.getElementById('tintIntensityValue').textContent = parseFloat(document.getElementById('imageTintIntensity').value) + '%';
+         }
+        
+        function isValidPosition(x, y, size, placedBalls) {
+            const minDistance = size * 0.8;
+            for (const ball of placedBalls) {
+                const distance = Math.sqrt((x - ball.x)**2 + (y - ball.y)**2);
+                if (distance < (size + ball.size) / 2 + minDistance) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // Sparkle effects removed for clean background
+        
+        function adjustColor(color, amount) {
+            const num = parseInt(color.replace("#", ""), 16);
+            const r = Math.max(0, Math.min(255, ((num >> 16) & 255) + amount));
+            const g = Math.max(0, Math.min(255, ((num >> 8) & 255) + amount));
+            const b = Math.max(0, Math.min(255, (num & 255) + amount));
+            return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+        }
+        
+        function blendColors(color1, color2, ratio) {
+            // Convert hex colors to RGB
+            const hex1 = color1.replace('#', '');
+            const hex2 = color2.replace('#', '');
+            
+            const r1 = parseInt(hex1.substr(0, 2), 16);
+            const g1 = parseInt(hex1.substr(2, 2), 16);
+            const b1 = parseInt(hex1.substr(4, 2), 16);
+            
+            const r2 = parseInt(hex2.substr(0, 2), 16);
+            const g2 = parseInt(hex2.substr(2, 2), 16);
+            const b2 = parseInt(hex2.substr(4, 2), 16);
+            
+            // Blend the colors
+            const r = Math.round(r1 + (r2 - r1) * ratio);
+            const g = Math.round(g1 + (g2 - g1) * ratio);
+            const b = Math.round(b1 + (b2 - b1) * ratio);
+            
+            // Convert back to hex
+            const toHex = (n) => {
+                const hex = n.toString(16);
+                return hex.length === 1 ? '0' + hex : hex;
+            };
+            
+            return '#' + toHex(r) + toHex(g) + toHex(b);
+        }
+        
+        function getLinearGradientCoords(direction, width, height) {
+            switch (direction) {
+                case 'top':
+                    return { x1: 0, y1: 0, x2: 0, y2: height };
+                case 'bottom':
+                    return { x1: 0, y1: height, x2: 0, y2: 0 };
+                case 'left':
+                    return { x1: 0, y1: 0, x2: width, y2: 0 };
+                case 'right':
+                    return { x1: width, y1: 0, x2: 0, y2: 0 };
+                case 'top-left':
+                    return { x1: 0, y1: 0, x2: width, y2: height };
+                case 'top-right':
+                    return { x1: width, y1: 0, x2: 0, y2: height };
+                case 'bottom-left':
+                    return { x1: 0, y1: height, x2: width, y2: 0 };
+                case 'bottom-right':
+                    return { x1: width, y1: height, x2: 0, y2: 0 };
+                default:
+                    return { x1: 0, y1: 0, x2: 0, y2: height };
+            }
+        }
+        
+        function generateOBSUrl() {
+            // Get current settings
+            const settings = {
+                imageCount: document.getElementById('imageCount').value,
+                imageSize: document.getElementById('imageSize').value,
+                lineSpacing: document.getElementById('lineSpacing').value,
+                scrollSpeed: document.getElementById('scrollSpeed').value,
+                lineCount: document.getElementById('lineCount').value,
+                imageSpacing: document.getElementById('imageSpacing').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                 animationSpeed: document.getElementById('animationSpeed').value,
+                 blurAmount: document.getElementById('blurAmount').value,
+                 uniformSize: document.getElementById('uniformSize').checked,
+                 canvasRotation: document.getElementById('canvasRotation').value,
+                 imageRotation: document.getElementById('imageRotation').value,
+                 imageTintColor: document.getElementById('imageTintColor').value,
+                 imageTintIntensity: document.getElementById('imageTintIntensity').value,
+                 gradientType: document.getElementById('gradientType').value,
+                 gradientDirection: document.getElementById('gradientDirection').value,
+                 gradientIntensity: document.getElementById('gradientIntensity').value,
+                 gradientColor2: document.getElementById('gradientColor2').value
+            };
+            
+            // Create URL with settings
+            const baseUrl = window.location.href.split('?')[0];
+            const params = new URLSearchParams();
+            
+            Object.keys(settings).forEach(key => {
+                params.append(key, settings[key]);
+            });
+            
+            const obsUrl = `${baseUrl}?${params.toString()}`;
+            
+            // Show URL output
+            document.getElementById('obsUrl').value = obsUrl;
+            document.getElementById('urlOutput').style.display = 'block';
+            
+            updateStatus('🔗 OBS URL generated! Copy and paste into OBS Browser Source.', 'success');
+        }
+        
+        function copyToClipboard() {
+            const urlInput = document.getElementById('obsUrl');
+            urlInput.select();
+            urlInput.setSelectionRange(0, 99999); // For mobile devices
+            
+            try {
+                document.execCommand('copy');
+                updateStatus('📋 URL copied to clipboard!', 'success');
+            } catch (err) {
+                // Fallback for modern browsers
+                navigator.clipboard.writeText(urlInput.value).then(() => {
+                    updateStatus('📋 URL copied to clipboard!', 'success');
+                });
+            }
+        }
+        
+        function openInNewTab() {
+            const url = document.getElementById('obsUrl').value;
+            window.open(url, '_blank');
+        }
+        
+        function closeUrlOutput() {
+            document.getElementById('urlOutput').style.display = 'none';
+        }
+        
+        function openImageLoader() {
+            document.getElementById('imageLoaderModal').style.display = 'block';
+            document.getElementById('loadStatus').textContent = 'Click the button below to select your images folder...';
+            document.getElementById('loadActions').style.display = 'none';
+        }
+        
+        function closeImageLoader() {
+            document.getElementById('imageLoaderModal').style.display = 'none';
+        }
+        
+        function openLoadSettings() {
+            document.getElementById('loadSettingsModal').style.display = 'block';
+            document.getElementById('settingsInput').value = '';
+        }
+        
+        function closeLoadSettings() {
+            document.getElementById('loadSettingsModal').style.display = 'none';
+        }
+        
+        function loadSettingsFromModalUrl() {
+            const urlText = document.getElementById('settingsInput').value.trim();
+            if (!urlText) {
+                updateStatus('❌ Please enter a URL', 'error');
+                return;
+            }
+            
+            let urlParams;
+            try {
+                const url = new URL(urlText);
+                urlParams = new URLSearchParams(url.search);
+            } catch (error) {
+                updateStatus('❌ Invalid URL format', 'error');
+                return;
+            }
+            
+            // Load settings from URL parameters
+            const settings = {
+                imageCount: urlParams.get('imageCount'),
+                imageSize: urlParams.get('imageSize'),
+                lineSpacing: urlParams.get('lineSpacing'),
+                scrollSpeed: urlParams.get('scrollSpeed'),
+                lineCount: urlParams.get('lineCount'),
+                imageSpacing: urlParams.get('imageSpacing'),
+                backgroundColor: urlParams.get('backgroundColor'),
+                animationSpeed: urlParams.get('animationSpeed'),
+                blurAmount: urlParams.get('blurAmount'),
+                uniformSize: urlParams.get('uniformSize'),
+                canvasRotation: urlParams.get('canvasRotation'),
+                imageRotation: urlParams.get('imageRotation'),
+                imageTintColor: urlParams.get('imageTintColor'),
+                imageTintIntensity: urlParams.get('imageTintIntensity'),
+                gradientType: urlParams.get('gradientType'),
+                gradientDirection: urlParams.get('gradientDirection'),
+                gradientIntensity: urlParams.get('gradientIntensity'),
+                gradientColor2: urlParams.get('gradientColor2')
+            };
+            
+            // Apply settings if they exist
+            Object.keys(settings).forEach(key => {
+                if (settings[key] !== null) {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        if (element.type === 'checkbox') {
+                            element.checked = settings[key] === 'true';
+                        } else {
+                            element.value = settings[key];
+                        }
+                        element.dispatchEvent(new Event('input'));
+                    }
+                }
+            });
+            
+            // Update global variables
+            if (settings.animationSpeed !== null) {
+                animationSpeed = parseFloat(settings.animationSpeed);
+            }
+            if (settings.scrollSpeed !== null) {
+                scrollSpeed = parseFloat(settings.scrollSpeed);
+            }
+            if (settings.blurAmount !== null) {
+                blurAmount = parseFloat(settings.blurAmount);
+            }
+            if (settings.uniformSize !== null) {
+                uniformSize = settings.uniformSize === 'true';
+            }
+            if (settings.canvasRotation !== null) {
+                canvasRotation = parseFloat(settings.canvasRotation);
+            }
+            if (settings.imageRotation !== null) {
+                imageRotation = parseFloat(settings.imageRotation);
+            }
+            if (settings.imageTintColor !== null) {
+                imageTintColor = settings.imageTintColor;
+            }
+            if (settings.imageTintIntensity !== null) {
+                imageTintIntensity = parseFloat(settings.imageTintIntensity);
+            }
+            if (settings.gradientType !== null) {
+                gradientType = settings.gradientType;
+            }
+            if (settings.gradientDirection !== null) {
+                gradientDirection = settings.gradientDirection;
+            }
+            if (settings.gradientIntensity !== null) {
+                gradientIntensity = parseFloat(settings.gradientIntensity);
+            }
+            if (settings.gradientColor2 !== null) {
+                gradientColor2 = settings.gradientColor2;
+            }
+            
+            // Handle image data from URL
+            if (urlParams.get('imageData')) {
+                try {
+                    const imageDataArray = JSON.parse(urlParams.get('imageData'));
+                    imageAssets = [];
+                    
+                    updateStatus(`Loading ${imageDataArray.length} images from URL...`, 'loading');
+                    
+                    let loadedCount = 0;
+                    imageDataArray.forEach((imageData, index) => {
+                        const img = new Image();
+                        img.onload = function() {
+                            imageAssets.push({
+                                image: img,
+                                size: Math.random() * (maxSize - minSize) + minSize,
+                                x: Math.random() * canvas.width,
+                                y: Math.random() * canvas.height,
+                                speed: (Math.random() - 0.5) * 2,
+                                rotation: Math.random() * Math.PI * 2,
+                                alpha: Math.random() * 0.5 + 0.3
+                            });
+                            loadedCount++;
+                            
+                            if (loadedCount === imageDataArray.length) {
+                                updateStatus(`✅ Loaded ${loadedCount} images from URL!`, 'success');
+                                liveUpdate();
+                            }
+                        };
+                        img.onerror = function() {
+                            console.warn(`Failed to load image ${index + 1}`);
+                            loadedCount++;
+                            
+                            if (loadedCount === imageDataArray.length) {
+                                updateStatus(`✅ Loaded ${loadedCount} images from URL!`, 'success');
+                                liveUpdate();
+                            }
+                        };
+                        img.src = imageData;
+                    });
+                } catch (error) {
+                    console.warn('Failed to parse image data from URL:', error);
+                }
+            }
+            
+            updateStatus('🔗 Settings loaded from URL!', 'success');
+            closeLoadSettings();
+            liveUpdate();
+        }
+        
+        // Handle file input for settings
+        document.addEventListener('DOMContentLoaded', function() {
+            const settingsFileInput = document.getElementById('settingsFileInput');
+            if (settingsFileInput) {
+                settingsFileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            try {
+                                const settings = JSON.parse(e.target.result);
+                                
+                                // Apply settings
+                                Object.keys(settings).forEach(key => {
+                                    const element = document.getElementById(key);
+                                    if (element) {
+                                        if (element.type === 'checkbox') {
+                                            element.checked = settings[key];
+                                        } else {
+                                            element.value = settings[key];
+                                        }
+                                        element.dispatchEvent(new Event('input'));
+                                    }
+                                });
+                                
+                                updateStatus('📁 Settings loaded from file!', 'success');
+                                closeLoadSettings();
+                                liveUpdate();
+                            } catch (error) {
+                                updateStatus('❌ Invalid settings file format', 'error');
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                });
+            }
+        });
+        
+        function copySettings() {
+            const settings = {
+                imageCount: document.getElementById('imageCount').value,
+                imageSize: document.getElementById('imageSize').value,
+                lineSpacing: document.getElementById('lineSpacing').value,
+                scrollSpeed: document.getElementById('scrollSpeed').value,
+                lineCount: document.getElementById('lineCount').value,
+                imageSpacing: document.getElementById('imageSpacing').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                 animationSpeed: document.getElementById('animationSpeed').value,
+                 blurAmount: document.getElementById('blurAmount').value,
+                 uniformSize: document.getElementById('uniformSize').checked,
+                 canvasRotation: document.getElementById('canvasRotation').value,
+                 imageRotation: document.getElementById('imageRotation').value,
+                 imageTintColor: document.getElementById('imageTintColor').value,
+                 imageTintIntensity: document.getElementById('imageTintIntensity').value,
+                 gradientType: document.getElementById('gradientType').value,
+                 gradientDirection: document.getElementById('gradientDirection').value,
+                 gradientIntensity: document.getElementById('gradientIntensity').value,
+                 gradientColor2: document.getElementById('gradientColor2').value
+            };
+            
+            const url = new URL(window.location.href);
+            Object.keys(settings).forEach(key => {
+                url.searchParams.set(key, settings[key]);
+            });
+            
+            const obsUrl = url.toString();
+            navigator.clipboard.writeText(obsUrl).then(() => {
+                updateStatus('📋 Settings copied to clipboard!', 'success');
+            });
+        }
+
+        function saveSettings() {
+            if (isInitializing) {
+                return;
+            }
+            
+            const settings = {
+                imageCount: document.getElementById('imageCount').value,
+                imageSize: document.getElementById('imageSize').value,
+                lineSpacing: document.getElementById('lineSpacing').value,
+                scrollSpeed: document.getElementById('scrollSpeed').value,
+                lineCount: document.getElementById('lineCount').value,
+                imageSpacing: document.getElementById('imageSpacing').value,
+                backgroundColor: document.getElementById('backgroundColor').value,
+                 animationSpeed: document.getElementById('animationSpeed').value,
+                 blurAmount: document.getElementById('blurAmount').value,
+                 uniformSize: document.getElementById('uniformSize').checked,
+                 canvasRotation: document.getElementById('canvasRotation').value,
+                 imageRotation: document.getElementById('imageRotation').value,
+                 imageTintColor: document.getElementById('imageTintColor').value,
+                 imageTintIntensity: document.getElementById('imageTintIntensity').value,
+                 gradientType: document.getElementById('gradientType').value,
+                 gradientDirection: document.getElementById('gradientDirection').value,
+                 gradientIntensity: document.getElementById('gradientIntensity').value,
+                 gradientColor2: document.getElementById('gradientColor2').value
+            };
+            localStorage.setItem('backgroundGeneratorSettings', JSON.stringify(settings));
+            updateStatus('💾 Settings saved automatically!', 'success');
+        }
+        
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('backgroundGeneratorSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                
+                // Apply saved settings to form controls
+                document.getElementById('lineCount').value = settings.lineCount || 5;
+                document.getElementById('lineSpacing').value = settings.lineSpacing || 150;
+                document.getElementById('imageSpacing').value = settings.imageSpacing || 120;
+                document.getElementById('imageCount').value = settings.imageCount || 25;
+                document.getElementById('imageSize').value = settings.imageSize || 60;
+                document.getElementById('scrollSpeed').value = settings.scrollSpeed || 0.15;
+                document.getElementById('animationSpeed').value = settings.animationSpeed || 1;
+                 document.getElementById('blurAmount').value = settings.blurAmount || 0;
+                 document.getElementById('uniformSize').checked = settings.uniformSize || false;
+                 document.getElementById('canvasRotation').value = settings.canvasRotation || 0;
+                 document.getElementById('imageRotation').value = settings.imageRotation || 0;
+                 document.getElementById('imageTintColor').value = settings.imageTintColor || '#ffffff';
+                 document.getElementById('imageTintIntensity').value = settings.imageTintIntensity || 0;
+                 document.getElementById('gradientType').value = settings.gradientType || 'none';
+                 document.getElementById('gradientDirection').value = settings.gradientDirection || 'top';
+                 document.getElementById('gradientIntensity').value = settings.gradientIntensity || 50;
+                 document.getElementById('gradientColor2').value = settings.gradientColor2 || '#000000';
+                 document.getElementById('backgroundColor').value = settings.backgroundColor || '#0a0a0a';
+                
+                // Update global variables
+                animationSpeed = parseFloat(settings.animationSpeed) || 1;
+                scrollSpeed = parseFloat(settings.scrollSpeed) || 0.15;
+                 blurAmount = parseFloat(settings.blurAmount) || 0;
+                 uniformSize = settings.uniformSize || false;
+                 canvasRotation = parseFloat(settings.canvasRotation) || 0;
+                 imageRotation = parseFloat(settings.imageRotation) || 0;
+                 imageTintColor = settings.imageTintColor || '#ffffff';
+                 imageTintIntensity = parseFloat(settings.imageTintIntensity) || 0;
+                 gradientType = settings.gradientType || 'none';
+                 gradientDirection = settings.gradientDirection || 'top';
+                 gradientIntensity = parseFloat(settings.gradientIntensity) || 50;
+                 gradientColor2 = settings.gradientColor2 || '#000000';
+                
+                // Apply CSS blur to canvas for better performance
+                const canvas = document.getElementById('backgroundCanvas');
+                if (canvas) {
+                    if (blurAmount > 0) {
+                        canvas.style.filter = `blur(${blurAmount}px)`;
+                    } else {
+                        canvas.style.filter = 'none';
+                    }
+                }
+                
+                
+                // Update display values
+                updateDisplayValues();
+                
+                // Don't generate background here - let the auto-start handle it after images are loaded
+                
+                updateStatus('✅ Settings loaded from previous session!', 'success');
+            } else {
+                updateStatus('No saved settings found. Using defaults.', 'info');
+            }
+        }
+
+        function loadImagesFromStorage() {
+            // Check for sample format first (new approach)
+            const sampleData = localStorage.getItem('backgroundGeneratorImageSample');
+            const imageCount = localStorage.getItem('backgroundGeneratorImageCount');
+            
+            if (sampleData && imageCount) {
+                window.hasLoadedImages = true;
+                loadImagesFromSample(sampleData, parseInt(imageCount));
+                return;
+            }
+            
+            // Fallback to old batch format
+            if (imageCount) {
+                window.hasLoadedImages = true;
+                loadImagesFromBatches(parseInt(imageCount));
+                return;
+            }
+            
+            // Fallback to old single storage format
+            const savedImages = localStorage.getItem('backgroundGeneratorImages');
+            if (savedImages) {
+                window.hasLoadedImages = true;
+                loadImagesFromOldFormat(savedImages);
+            }
+        }
+        
+        function loadImagesFromSample(sampleData, totalCount) {
+            imageAssets = [];
+            let loadedCount = 0;
+            let hasTimedOut = false;
+            
+            updateStatus(`Loading sample of saved images (${totalCount} total available)...`, 'loading');
+            
+            const timeout = setTimeout(() => {
+                if (loadedCount < JSON.parse(sampleData).length) {
+                    hasTimedOut = true;
+                    console.log('Sample loading timed out, proceeding with loaded images');
+                    updateStatus(`⚠️ Loading timed out. Using ${imageAssets.length} loaded images.`, 'warning');
+                    document.getElementById('generateUrlBtn').disabled = false;
+                }
+            }, 5000); // 5 second timeout for sample
+            
+            try {
+                const sample = JSON.parse(sampleData);
+                sample.forEach((imageData, index) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        if (hasTimedOut) return;
+                        
+                        imageAssets.push({
+                            image: img,
+                            name: imageData.name
+                        });
+                        loadedCount++;
+                        
+                        if (loadedCount === sample.length) {
+                            clearTimeout(timeout);
+                            updateStatus(`✅ Loaded sample of ${loadedCount} images! (${totalCount} total available)`, 'success');
+                            document.getElementById('generateUrlBtn').disabled = false;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (hasTimedOut) return;
+                        
+                        console.error('Failed to load saved image:', imageData.name);
+                        loadedCount++;
+                        
+                        if (loadedCount === sample.length) {
+                            clearTimeout(timeout);
+                            updateStatus(`⚠️ Loaded ${imageAssets.length} of ${sample.length} sample images.`, 'warning');
+                            document.getElementById('generateUrlBtn').disabled = false;
+                        }
+                    };
+                    img.src = imageData.data;
+                });
+            } catch (error) {
+                console.error('Error loading sample:', error);
+                updateStatus('Error loading sample. Using defaults.', 'error');
+            }
+        }
+        
+        function loadImagesFromBatches(totalCount) {
+            imageAssets = [];
+            let loadedCount = 0;
+            let batchIndex = 0;
+            let hasTimedOut = false;
+            
+            updateStatus(`Loading ${totalCount} saved images from batches...`, 'loading');
+            
+            const timeout = setTimeout(() => {
+                if (loadedCount < totalCount) {
+                    hasTimedOut = true;
+                    console.log('Batch loading timed out, proceeding with loaded images');
+                    updateStatus(`⚠️ Loading timed out. Using ${imageAssets.length} loaded images.`, 'warning');
+                    document.getElementById('generateUrlBtn').disabled = false;
+                }
+            }, 15000); // 15 second timeout for batches
+            
+            function loadNextBatch() {
+                if (hasTimedOut || batchIndex * 50 >= totalCount) {
+                    clearTimeout(timeout);
+                    updateStatus(`✅ Loaded ${imageAssets.length} saved images!`, 'success');
+                    document.getElementById('generateUrlBtn').disabled = false;
+                    return;
+                }
+                
+                const batchKey = `backgroundGeneratorImages_${batchIndex * 50}`;
+                const batchData = localStorage.getItem(batchKey);
+                
+                if (batchData) {
+                    try {
+                        const batch = JSON.parse(batchData);
+                        batch.forEach((imageData, index) => {
+                            const img = new Image();
+                            img.onload = function() {
+                                if (hasTimedOut) return;
+                                
+                                imageAssets.push({
+                                    image: img,
+                                    name: imageData.name
+                                });
+                                loadedCount++;
+                                
+                                if (loadedCount === totalCount) {
+                                    clearTimeout(timeout);
+                                    updateStatus(`✅ Loaded ${loadedCount} saved images!`, 'success');
+                                    document.getElementById('generateUrlBtn').disabled = false;
+                                }
+                            };
+                            img.onerror = function() {
+                                if (hasTimedOut) return;
+                                
+                                console.error('Failed to load saved image:', imageData.name);
+                                loadedCount++;
+                                
+                                if (loadedCount === totalCount) {
+                                    clearTimeout(timeout);
+                                    updateStatus(`⚠️ Loaded ${imageAssets.length} of ${totalCount} saved images.`, 'warning');
+                                    document.getElementById('generateUrlBtn').disabled = false;
+                                }
+                            };
+                            img.src = imageData.data;
+                        });
+                    } catch (error) {
+                        console.error('Error loading batch:', error);
+                    }
+                }
+                
+                batchIndex++;
+                setTimeout(loadNextBatch, 50); // Small delay between batches
+            }
+            
+            loadNextBatch();
+        }
+        
+        function loadImagesFromOldFormat(savedImages) {
+            try {
+                const imageDataArray = JSON.parse(savedImages);
+                imageAssets = [];
+                
+                updateStatus(`Loading ${imageDataArray.length} saved images...`, 'loading');
+                
+                let loadedCount = 0;
+                let hasTimedOut = false;
+                
+                const timeout = setTimeout(() => {
+                    if (loadedCount < imageDataArray.length) {
+                        hasTimedOut = true;
+                        console.log('Image loading timed out, proceeding with loaded images');
+                        updateStatus(`⚠️ Loading timed out. Using ${imageAssets.length} loaded images.`, 'warning');
+                        document.getElementById('generateUrlBtn').disabled = false;
+                    }
+                }, 10000);
+                
+                imageDataArray.forEach((imageData, index) => {
+                    const img = new Image();
+                    img.onload = function() {
+                        if (hasTimedOut) return;
+                        
+                        imageAssets.push({
+                            image: img,
+                            name: imageData.name
+                        });
+                        loadedCount++;
+                        
+                        if (loadedCount === imageDataArray.length) {
+                            clearTimeout(timeout);
+                            updateStatus(`✅ Loaded ${loadedCount} saved images!`, 'success');
+                            document.getElementById('generateUrlBtn').disabled = false;
+                        }
+                    };
+                    img.onerror = function() {
+                        if (hasTimedOut) return;
+                        
+                        console.error('Failed to load saved image:', imageData.name);
+                        loadedCount++;
+                        if (loadedCount === imageDataArray.length) {
+                            clearTimeout(timeout);
+                            updateStatus(`⚠️ Loaded ${imageAssets.length} of ${imageDataArray.length} saved images.`, 'warning');
+                            document.getElementById('generateUrlBtn').disabled = false;
+                        }
+                    };
+                    img.src = imageData.data;
+                });
+            } catch (error) {
+                console.error('Error loading saved images:', error);
+                updateStatus('Error loading saved images. Using defaults.', 'error');
+            }
+        }
+
+        function loadSettingsFromFile() {
+            // Show a prompt to paste OBS URL or choose file
+            const urlOrFile = prompt('Paste OBS URL or press Cancel to choose a file:', '');
+            
+            if (urlOrFile && urlOrFile.trim()) {
+                // Check if it's a URL
+                if (urlOrFile.includes('?') && urlOrFile.includes('=')) {
+                    try {
+                        // Extract URL parameters
+                        const url = new URL(urlOrFile);
+                        const params = new URLSearchParams(url.search);
+                        
+                        // Apply settings from URL parameters
+                        params.forEach((value, key) => {
+                            const element = document.getElementById(key);
+                            if (element) {
+                                element.value = value;
+                                element.dispatchEvent(new Event('input'));
+                            }
+                        });
+                        
+                        // Handle image data from URL
+                        if (params.get('imageData')) {
+                            try {
+                                const imageDataArray = JSON.parse(params.get('imageData'));
+                                imageAssets = [];
+                                
+                                updateStatus(`Loading ${imageDataArray.length} images from URL...`, 'loading');
+                                
+                                let loadedCount = 0;
+                                imageDataArray.forEach(imageData => {
+                                    const img = new Image();
+                                    img.onload = function() {
+                                        imageAssets.push({
+                                            image: img,
+                                            name: imageData.name
+                                        });
+                                        loadedCount++;
+                                        
+                                        if (loadedCount === imageDataArray.length) {
+                                            updateStatus(`✅ Loaded ${loadedCount} images from URL!`, 'success');
+                                            generateUrlBtn.disabled = false;
+                                        }
+                                    };
+                                    img.onerror = function() {
+                                        loadedCount++;
+                                        if (loadedCount === imageDataArray.length) {
+                                            updateStatus(`⚠️ Loaded ${imageAssets.length} of ${imageDataArray.length} images from URL.`, 'warning');
+                                            generateUrlBtn.disabled = false;
+                                        }
+                                    };
+                                    img.src = imageData.data;
+                                });
+                            } catch (error) {
+                                console.error('Error loading images from URL:', error);
+                                updateStatus('Error loading images from URL. Using defaults.', 'error');
+                            }
+                        }
+                        
+                        // Update global variables
+                        if (params.get('animationSpeed')) {
+                            animationSpeed = parseFloat(params.get('animationSpeed'));
+                        }
+                        if (params.get('scrollSpeed')) {
+                            scrollSpeed = parseFloat(params.get('scrollSpeed'));
+                        }
+                        if (params.get('blurAmount')) {
+                            blurAmount = parseFloat(params.get('blurAmount'));
+                        }
+                        if (params.get('uniformSize')) {
+                            uniformSize = params.get('uniformSize') === 'true';
+                        }
+                        
+                        updateStatus('🔗 Settings loaded from OBS URL!', 'success');
+                        liveUpdate();
+                    } catch (error) {
+                        updateStatus('❌ Invalid URL format', 'error');
+                    }
+                } else {
+                    updateStatus('❌ Not a valid OBS URL', 'error');
+                }
+            } else if (urlOrFile !== null) {
+                // Only show file picker if user didn't cancel (urlOrFile is not null)
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            try {
+                                const settings = JSON.parse(e.target.result);
+                                Object.keys(settings).forEach(key => {
+                                    const element = document.getElementById(key);
+                                    if (element) {
+                                        element.value = settings[key];
+                                        element.dispatchEvent(new Event('input'));
+                                    }
+                                });
+                                updateStatus('📁 Settings loaded from file!', 'success');
+                                liveUpdate();
+                            } catch (error) {
+                                updateStatus('❌ Error loading settings file', 'error');
+                            }
+                        };
+                        reader.readAsText(file);
+                    }
+                };
+                input.click();
+            }
+            // If urlOrFile is null (user pressed Cancel), do nothing
+        }
+        
+        function loadSettingsFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            // Load settings from URL parameters
+            const settings = {
+                imageCount: urlParams.get('imageCount'),
+                imageSize: urlParams.get('imageSize'),
+                lineSpacing: urlParams.get('lineSpacing'),
+                scrollSpeed: urlParams.get('scrollSpeed'),
+                lineCount: urlParams.get('lineCount'),
+                imageSpacing: urlParams.get('imageSpacing'),
+                backgroundColor: urlParams.get('backgroundColor'),
+                 animationSpeed: urlParams.get('animationSpeed'),
+                 blurAmount: urlParams.get('blurAmount'),
+                 uniformSize: urlParams.get('uniformSize'),
+                 canvasRotation: urlParams.get('canvasRotation'),
+                 imageRotation: urlParams.get('imageRotation'),
+                 imageTintColor: urlParams.get('imageTintColor'),
+                 imageTintIntensity: urlParams.get('imageTintIntensity'),
+                 gradientType: urlParams.get('gradientType'),
+                 gradientDirection: urlParams.get('gradientDirection'),
+                 gradientIntensity: urlParams.get('gradientIntensity'),
+                 gradientColor2: urlParams.get('gradientColor2')
+            };
+            
+            // Apply settings if they exist
+            Object.keys(settings).forEach(key => {
+                if (settings[key] !== null) {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = settings[key];
+                        // Trigger change event to update display
+                        element.dispatchEvent(new Event('input'));
+                    }
+                }
+            });
+            
+            // Update global variables if URL parameters exist
+            if (settings.animationSpeed !== null) {
+                animationSpeed = parseFloat(settings.animationSpeed);
+            }
+            if (settings.scrollSpeed !== null) {
+                scrollSpeed = parseFloat(settings.scrollSpeed);
+            }
+            if (settings.blurAmount !== null) {
+                blurAmount = parseFloat(settings.blurAmount);
+                console.log('Blur amount from URL:', settings.blurAmount, 'parsed as:', blurAmount);
+            }
+             if (settings.uniformSize !== null) {
+                 uniformSize = settings.uniformSize === 'true';
+             }
+             if (settings.canvasRotation !== null) {
+                 canvasRotation = parseFloat(settings.canvasRotation);
+             }
+             if (settings.imageRotation !== null) {
+                 imageRotation = parseFloat(settings.imageRotation);
+             }
+             if (settings.imageTintColor !== null) {
+                 imageTintColor = settings.imageTintColor;
+             }
+             if (settings.imageTintIntensity !== null) {
+                 imageTintIntensity = parseFloat(settings.imageTintIntensity);
+             }
+             if (settings.gradientType !== null) {
+                 gradientType = settings.gradientType;
+             }
+             if (settings.gradientDirection !== null) {
+                 gradientDirection = settings.gradientDirection;
+             }
+             if (settings.gradientIntensity !== null) {
+                 gradientIntensity = parseFloat(settings.gradientIntensity);
+             }
+             if (settings.gradientColor2 !== null) {
+                 gradientColor2 = settings.gradientColor2;
+             }
+            
+            // If we have URL parameters, hide the interface and show only the background
+            if (Object.values(settings).some(value => value !== null)) {
+                // Hide the generator interface
+                const header = document.querySelector('.header');
+                const settingsPanel = document.querySelector('.settings-panel');
+                const urlOutput = document.getElementById('urlOutput');
+                
+                if (header) header.style.display = 'none';
+                if (settingsPanel) settingsPanel.style.display = 'none';
+                if (urlOutput) urlOutput.style.display = 'none';
+                
+                // Show the canvas fullscreen with proper aspect ratio
+                const canvas = document.getElementById('backgroundCanvas');
+                if (canvas) {
+                    canvas.style.display = 'block';
+                    canvas.style.position = 'fixed';
+                    canvas.style.top = '0';
+                    canvas.style.left = '0';
+                    canvas.style.width = '100vw';
+                    canvas.style.height = '100vh';
+                    canvas.style.objectFit = 'cover';
+                    canvas.style.zIndex = '9999';
+                    
+                    // Ensure the canvas maintains its internal resolution
+                    canvas.width = 2560;
+                    canvas.height = 1440;
+                    
+                    // Apply CSS blur to canvas for better performance
+                    if (blurAmount > 0) {
+                        canvas.style.filter = `blur(${blurAmount}px)`;
+                    } else {
+                        canvas.style.filter = 'none';
+                    }
+                }
+                
+                // Set body background to black
+                document.body.style.background = '#000';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                
+                updateStatus('🔗 Loading background from URL...', 'info');
+                
+                // Auto-generate the background
+                setTimeout(() => {
+                    // Create default images for URL mode
+                    createDefaultImages();
+                    generateBackground();
+                    // Auto-start animation
+                    setTimeout(() => {
+                        isAnimating = true;
+                        animate();
+                    }, 500);
+                }, 100);
+            }
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function clearImageStorage() {
+            if (confirm('This will clear all saved images from browser storage. You will need to reload your images. Continue?')) {
+                // Clear old format
+                localStorage.removeItem('backgroundGeneratorImages');
+                
+                // Clear batch format
+                for (let i = 0; i < 2000; i += 50) {
+                    localStorage.removeItem(`backgroundGeneratorImages_${i}`);
+                }
+                
+                // Clear new sample format
+                localStorage.removeItem('backgroundGeneratorImageSample');
+                localStorage.removeItem('backgroundGeneratorImageCount');
+                
+                imageAssets = [];
+                updateStatus('🗑️ Image storage cleared! Reload your images to continue.', 'info');
+                document.getElementById('generateUrlBtn').disabled = true;
+                updateStorageInfo();
+            }
+        }
+        
+        function saveImageSample(imageDataArray) {
+            // Only save a small sample (50-100 images) for quick loading
+            const sampleSize = Math.min(100, Math.floor(imageDataArray.length / 10)); // 10% or max 100
+            const sample = [];
+            
+            // Randomly select images for the sample
+            const indices = new Set();
+            while (indices.size < sampleSize) {
+                indices.add(Math.floor(Math.random() * imageDataArray.length));
+            }
+            
+            Array.from(indices).forEach(index => {
+                sample.push(imageDataArray[index]);
+            });
+            
+            try {
+                const dataToSave = JSON.stringify(sample);
+                const dataSize = new Blob([dataToSave]).size;
+                const maxSize = 2 * 1024 * 1024; // 2MB limit for sample
+                
+                if (dataSize > maxSize) {
+                    console.warn('Image sample too large, skipping save');
+                    updateStatus(`✅ Loaded ${imageDataArray.length} images! (Sample too large to save)`, 'warning');
+                } else {
+                    localStorage.setItem('backgroundGeneratorImageSample', dataToSave);
+                    localStorage.setItem('backgroundGeneratorImageCount', imageDataArray.length.toString());
+                    console.log(`Saved sample of ${sample.length} images out of ${imageDataArray.length} total`);
+                    updateStatus(`✅ Loaded ${imageDataArray.length} images! (Sample saved for quick loading)`, 'success');
+                }
+                updateStorageInfo();
+            } catch (error) {
+                console.warn('Failed to save image sample:', error.message);
+                updateStatus(`✅ Loaded ${imageDataArray.length} images! (Couldn't save sample)`, 'warning');
+                updateStorageInfo();
+            }
+        }
+        
+        function updateStorageInfo() {
+            const storageInfo = document.getElementById('storageInfo');
+            try {
+                // Check for new sample format first
+                const sampleData = localStorage.getItem('backgroundGeneratorImageSample');
+                const imageCount = localStorage.getItem('backgroundGeneratorImageCount');
+                
+                if (sampleData && imageCount) {
+                    const sampleSize = new Blob([sampleData]).size;
+                    const sizeKB = (sampleSize / 1024).toFixed(1);
+                    const sizeMB = (sampleSize / (1024 * 1024)).toFixed(1);
+                    const sizeText = sampleSize > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+                    const sampleCount = JSON.parse(sampleData).length;
+                    
+                    storageInfo.textContent = `Storage: ${sizeText} (${sampleCount} sample, ${imageCount} total)`;
+                    storageInfo.style.color = '#888';
+                    return;
+                }
+                
+                // Fallback to batch format
+                let totalSize = 0;
+                let savedBatches = 0;
+                
+                for (let i = 0; i < 2000; i += 50) {
+                    const key = `backgroundGeneratorImages_${i}`;
+                    const batch = localStorage.getItem(key);
+                    if (batch) {
+                        totalSize += new Blob([batch]).size;
+                        savedBatches++;
+                    }
+                }
+                
+                const sizeKB = (totalSize / 1024).toFixed(1);
+                const sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+                const sizeText = totalSize > 1024 * 1024 ? `${sizeMB} MB` : `${sizeKB} KB`;
+                
+                storageInfo.textContent = `Storage: ${sizeText} (${savedBatches} batches)`;
+                storageInfo.style.color = totalSize > 3 * 1024 * 1024 ? '#ff6b6b' : '#888';
+            } catch (error) {
+                storageInfo.textContent = 'Storage info unavailable';
+                storageInfo.style.color = '#ff6b6b';
+            }
+        }
+    </script>
+</body>
+</html>
