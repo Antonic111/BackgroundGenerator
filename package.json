@@ -15,7 +15,7 @@
     "react-dom": "^18.2.0",
     "lucide-react": "^0.263.1",
     "framer-motion": "^10.16.4",
-    "@vercel/kv": "^1.0.0"
+    "@upstash/redis": "^1.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.15",

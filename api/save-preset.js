@@ -1,4 +1,7 @@
-import { kv } from '@vercel/kv'
+import { Redis } from '@upstash/redis'
+
+// Initialize Redis client
+const redis = Redis.fromEnv()
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true)
@@ -35,26 +38,26 @@ export default async function handler(req, res) {
       updatedAt: new Date().toISOString()
     }
 
-    // Load existing presets from KV storage
+    // Load existing presets from Redis
     let presets = []
     try {
-      const existingPresets = await kv.get('background-generator-presets')
+      const existingPresets = await redis.get('background-generator-presets')
       if (existingPresets) {
         presets = existingPresets
       }
     } catch (error) {
-      console.error('Error reading presets from KV:', error)
-      // Continue with empty array if KV fails
+      console.error('Error reading presets from Redis:', error)
+      // Continue with empty array if Redis fails
     }
 
     // Add new preset
     presets.push(preset)
 
-    // Save presets back to KV storage
+    // Save presets back to Redis
     try {
-      await kv.set('background-generator-presets', presets)
+      await redis.set('background-generator-presets', presets)
     } catch (error) {
-      console.error('Error writing presets to KV:', error)
+      console.error('Error writing presets to Redis:', error)
       return res.status(500).json({ error: 'Failed to save preset to storage' })
     }
 
