@@ -1,3 +1,8 @@
+import fs from 'fs'
+import path from 'path'
+
+const PRESETS_FILE = path.join(process.cwd(), 'presets.json')
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true)
   res.setHeader('Access-Control-Allow-Origin', '*')
@@ -14,13 +19,22 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const presets = []
+      let presets = []
+      
+      // Load presets from file
+      try {
+        if (fs.existsSync(PRESETS_FILE)) {
+          const data = fs.readFileSync(PRESETS_FILE, 'utf8')
+          presets = JSON.parse(data)
+        }
+      } catch (error) {
+        console.error('Error reading presets file:', error)
+      }
 
       res.status(200).json({ 
         success: true, 
         presets 
       })
-
     } catch (error) {
       console.error('Error loading presets:', error)
       res.status(500).json({ error: 'Failed to load presets' })
@@ -28,18 +42,34 @@ export default async function handler(req, res) {
   } else if (req.method === 'POST') {
     try {
       const { presetId } = req.body
-
       if (!presetId) {
         return res.status(400).json({ error: 'Preset ID is required' })
       }
 
-      console.log('Loading preset:', presetId)
+      // Load presets from file
+      let presets = []
+      try {
+        if (fs.existsSync(PRESETS_FILE)) {
+          const data = fs.readFileSync(PRESETS_FILE, 'utf8')
+          presets = JSON.parse(data)
+        }
+      } catch (error) {
+        console.error('Error reading presets file:', error)
+        return res.status(500).json({ error: 'Failed to load presets' })
+      }
 
+      // Find the preset
+      const preset = presets.find(p => p.id === presetId)
+      if (!preset) {
+        return res.status(404).json({ error: 'Preset not found' })
+      }
+
+      console.log('Loading preset:', presetId)
       res.status(200).json({ 
         success: true, 
+        preset,
         message: 'Preset loaded successfully' 
       })
-
     } catch (error) {
       console.error('Error loading preset:', error)
       res.status(500).json({ error: 'Failed to load preset' })

@@ -135,9 +135,9 @@ const Presets = ({ settings, selectedImageSet, onLoadPreset, onClose }) => {
 
         const data = await response.json()
         
-        if (data.success) {
-          // Load the preset settings
-          onLoadPreset(preset.settings, preset.selectedImageSet)
+        if (data.success && data.preset) {
+          // Load the preset settings from API response
+          onLoadPreset(data.preset.settings, data.preset.selectedImageSet)
         } else {
           console.error('Failed to load preset:', data.error)
           alert('Failed to load preset: ' + data.error)
