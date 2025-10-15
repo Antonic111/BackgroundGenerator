@@ -1,5 +1,4 @@
-// Simple in-memory storage for presets (resets on server restart)
-let presets = []
+import { kv } from '@vercel/kv'
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true)
@@ -17,6 +16,19 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
+      let presets = []
+      
+      // Load presets from KV storage
+      try {
+        const existingPresets = await kv.get('background-generator-presets')
+        if (existingPresets) {
+          presets = existingPresets
+        }
+      } catch (error) {
+        console.error('Error reading presets from KV:', error)
+        // Continue with empty array if KV fails
+      }
+
       res.status(200).json({ 
         success: true, 
         presets 
@@ -30,6 +42,18 @@ export default async function handler(req, res) {
       const { presetId } = req.body
       if (!presetId) {
         return res.status(400).json({ error: 'Preset ID is required' })
+      }
+
+      // Load presets from KV storage
+      let presets = []
+      try {
+        const existingPresets = await kv.get('background-generator-presets')
+        if (existingPresets) {
+          presets = existingPresets
+        }
+      } catch (error) {
+        console.error('Error reading presets from KV:', error)
+        return res.status(500).json({ error: 'Failed to load presets' })
       }
 
       // Find the preset
