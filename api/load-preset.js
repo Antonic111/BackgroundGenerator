@@ -1,7 +1,5 @@
-import fs from 'fs'
-import path from 'path'
-
-const PRESETS_FILE = path.join(process.cwd(), 'presets.json')
+// Simple in-memory storage for presets (resets on server restart)
+let presets = []
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true)
@@ -19,18 +17,6 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      let presets = []
-      
-      // Load presets from file
-      try {
-        if (fs.existsSync(PRESETS_FILE)) {
-          const data = fs.readFileSync(PRESETS_FILE, 'utf8')
-          presets = JSON.parse(data)
-        }
-      } catch (error) {
-        console.error('Error reading presets file:', error)
-      }
-
       res.status(200).json({ 
         success: true, 
         presets 
@@ -44,18 +30,6 @@ export default async function handler(req, res) {
       const { presetId } = req.body
       if (!presetId) {
         return res.status(400).json({ error: 'Preset ID is required' })
-      }
-
-      // Load presets from file
-      let presets = []
-      try {
-        if (fs.existsSync(PRESETS_FILE)) {
-          const data = fs.readFileSync(PRESETS_FILE, 'utf8')
-          presets = JSON.parse(data)
-        }
-      } catch (error) {
-        console.error('Error reading presets file:', error)
-        return res.status(500).json({ error: 'Failed to load presets' })
       }
 
       // Find the preset
